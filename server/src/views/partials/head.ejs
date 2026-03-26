@@ -1,0 +1,16 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= page.title %></title>
+<% if (page.description) { %><meta name="description" content="<%= page.description %>"><% } %>
+<link rel="stylesheet" href="/public/css/tailwind.css">
+<% if (page.fontFamily === 'inter') { %>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<% } else if (page.fontFamily === 'geist') { %>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<% } else if (page.fontFamily === 'mono-jetbrains') { %>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<% } %>
+<% if (page.customCss) { %><style><%= page.customCss %></style><% } %>

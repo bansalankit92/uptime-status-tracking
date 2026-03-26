@@ -1,0 +1,48 @@
+<%# Renders footer based on footerLayout setting. Expects: page %>
+<% if (page.footerLayout === 'simple') { %>
+  <footer class="mt-12 py-6 border-t border-gray-200 dark:border-gray-700">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-400">
+      <% if (page.footerText) { %><span><%= page.footerText %></span><% } %>
+      <% if (page.footerLinks && page.footerLinks.length) { %>
+        <div class="flex gap-4">
+          <% for (const link of page.footerLinks) { %>
+            <a href="<%= link.url %>" class="hover:text-gray-700 dark:hover:text-gray-300 transition-colors"><%= link.label %></a>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+  </footer>
+
+<% } else if (page.footerLayout === 'centered') { %>
+  <footer class="mt-12 py-8 text-center">
+    <% if (page.footerLinks && page.footerLinks.length) { %>
+      <div class="flex justify-center gap-6 mb-3">
+        <% for (const link of page.footerLinks) { %>
+          <a href="<%= link.url %>" class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 transition-colors"><%= link.label %></a>
+        <% } %>
+      </div>
+    <% } %>
+    <% if (page.footerText) { %><p class="text-xs text-gray-400 dark:text-gray-500"><%= page.footerText %></p><% } %>
+  </footer>
+
+<% } else if (page.footerLayout === 'columns') { %>
+  <footer class="mt-12 py-8 border-t border-gray-200 dark:border-gray-700">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <% if (page.footerText) { %><p class="text-sm text-gray-500 dark:text-gray-400"><%= page.footerText %></p><% } %>
+      </div>
+      <div class="sm:text-right">
+        <% if (page.footerLinks && page.footerLinks.length) { %>
+          <% for (const link of page.footerLinks) { %>
+            <a href="<%= link.url %>" class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 transition-colors block sm:inline sm:ml-4"><%= link.label %></a>
+          <% } %>
+        <% } %>
+      </div>
+    </div>
+  </footer>
+
+<% } else { /* minimal */ %>
+  <footer class="mt-12 py-4">
+    <% if (page.footerText) { %><p class="text-xs text-gray-400 dark:text-gray-500 text-center"><%= page.footerText %></p><% } %>
+  </footer>
+<% } %>

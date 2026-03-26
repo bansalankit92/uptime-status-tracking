@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <%- include('../../partials/head', { page }) %>
+  <style>
+    body { background: #0a0a0a; }
+    .glow-green { text-shadow: 0 0 10px rgba(34, 197, 94, 0.5); }
+    .glow-red { text-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+    .terminal-border { border: 1px solid #1a1a2e; }
+    .grid-bg { background-image: radial-gradient(circle, #1a1a2e 1px, transparent 1px); background-size: 20px 20px; }
+  </style>
+</head>
+<body class="font-<%= page.fontFamily === 'system' ? 'system' : page.fontFamily === 'mono-jetbrains' ? 'mono-jetbrains' : page.fontFamily %> min-h-screen text-gray-100 grid-bg">
+
+  <div class="max-w-4xl mx-auto px-6 py-12">
+
+    <!-- Header -->
+    <header class="mb-10">
+      <div class="flex items-center gap-4 mb-2">
+        <% if (page.logoUrl) { %>
+          <img src="<%= page.logoUrl %>" alt="Logo" class="h-8">
+        <% } %>
+        <div class="flex items-center gap-2">
+          <span class="text-green-400 opacity-80">$</span>
+          <h1 class="text-2xl font-bold text-green-400 glow-green"><%= page.headerText || page.title %></h1>
+        </div>
+      </div>
+      <% if (page.description) { %>
+        <p class="text-gray-500 text-sm ml-6"><%= page.description %></p>
+      <% } %>
+
+      <!-- System Status -->
+      <div class="mt-6 terminal-border rounded-lg p-4 bg-black/50">
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-gray-600 font-mono">SYSTEM_STATUS:</span>
+          <% if (page.overallStatus === 'up') { %>
+            <span class="text-green-400 font-mono text-sm glow-green">● OPERATIONAL</span>
+          <% } else if (page.overallStatus === 'down') { %>
+            <span class="text-red-400 font-mono text-sm glow-red animate-pulse">● CRITICAL</span>
+          <% } else if (page.overallStatus === 'degraded') { %>
+            <span class="text-yellow-400 font-mono text-sm">● DEGRADED</span>
+          <% } else { %>
+            <span class="text-gray-400 font-mono text-sm">● INITIALIZING</span>
+          <% } %>
+        </div>
+      </div>
+    </header>
+
+    <!-- Monitors -->
+    <div class="space-y-4">
+      <% for (const monitor of page.monitors) { %>
+        <div class="terminal-border rounded-lg p-5 bg-black/30 hover:bg-black/50 transition-colors">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-3">
+              <span class="font-mono text-xs text-gray-600">[<%= page.monitors.indexOf(monitor).toString().padStart(2, '0') %>]</span>
+              <div class="w-2 h-2 rounded-full <%= monitor.status === 'up' ? 'bg-green-400 shadow-green-400/50 shadow-sm' : monitor.status === 'down' ? 'bg-red-400 shadow-red-400/50 shadow-sm animate-pulse' : 'bg-gray-500' %>"></div>
+              <span class="font-medium text-gray-200"><%= monitor.name %></span>
+            </div>
+            <div class="flex items-center gap-4 font-mono text-xs">
+              <% if (monitor.responseTimeMs) { %>
+                <span class="text-gray-500"><%= Math.round(monitor.responseTimeMs) %>ms</span>
+              <% } %>
+              <span class="<%= monitor.uptimePercentage >= 99.5 ? 'text-green-400' : monitor.uptimePercentage >= 95 ? 'text-yellow-400' : 'text-red-400' %>">
+                <%= helpers.formatUptime(monitor.uptimePercentage) %>
+              </span>
+            </div>
+          </div>
+          <%- include('../../partials/uptime-bar', { monitor, page, helpers }) %>
+          <div class="flex justify-between mt-1">
+            <span class="text-xs text-gray-700 font-mono">-<%= page.uptimeDaysToShow %>d</span>
+            <span class="text-xs text-gray-700 font-mono">now</span>
+          </div>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Incidents -->
+    <% if (page.activeIncidents && page.activeIncidents.length > 0) { %>
+      <section class="mt-8">
+        <h2 class="text-sm font-mono text-gray-500 uppercase tracking-wider mb-4">// Active Incidents</h2>
+        <div class="space-y-3">
+          <% for (const incident of page.activeIncidents) { %>
+            <div class="terminal-border rounded-lg p-4 bg-red-950/20 border-red-900/30">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-red-400 font-mono text-xs">ERR</span>
+                <span class="text-red-300 font-medium text-sm"><%= incident.title %></span>
+              </div>
+              <p class="text-xs text-gray-500 font-mono ml-8">
+                status=<%= incident.status %> monitor=<%= incident.monitorName %> started=<%= helpers.timeAgo(incident.startedAt) %>
+              </p>
+              <% if (incident.cause) { %>
+                <p class="text-xs text-red-400/80 font-mono ml-8 mt-1">cause: <%= incident.cause %></p>
+              <% } %>
+            </div>
+          <% } %>
+        </div>
+      </section>
+    <% } %>
+
+    <!-- Footer -->
+    <footer class="mt-12 py-6 border-t border-gray-800/50">
+      <div class="flex items-center justify-between text-xs text-gray-700 font-mono">
+        <span><%= page.footerText || '' %></span>
+        <% if (page.footerLinks && page.footerLinks.length) { %>
+          <div class="flex gap-4">
+            <% for (const link of page.footerLinks) { %>
+              <a href="<%= link.url %>" class="text-gray-600 hover:text-gray-400 transition-colors"><%= link.label %></a>
+            <% } %>
+          </div>
+        <% } %>
+      </div>
+    </footer>
+  </div>
+
+</body>
+</html>

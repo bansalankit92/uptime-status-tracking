@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" <% if (page.colorMode === 'dark') { %>class="dark"<% } %>>
+<head>
+  <%- include('../../partials/head', { page }) %>
+</head>
+<body class="font-<%= page.fontFamily %> min-h-screen
+  <%= page.colorMode === 'dark' ? 'bg-gray-900 text-gray-100' : 'bg-slate-50 text-gray-900' %>">
+
+  <div class="max-w-5xl mx-auto px-6 py-10">
+
+    <!-- Header -->
+    <header class="text-center mb-10">
+      <% if (page.logoUrl) { %>
+        <img src="<%= page.logoUrl %>" alt="Logo" class="h-12 mx-auto mb-4">
+      <% } %>
+      <h1 class="text-3xl font-bold"><%= page.headerText || page.title %></h1>
+      <% if (page.description) { %>
+        <p class="mt-2 <%= page.colorMode === 'dark' ? 'text-gray-400' : 'text-gray-600' %>"><%= page.description %></p>
+      <% } %>
+
+      <!-- Overall Status -->
+      <div class="mt-6 mx-auto max-w-md p-3 rounded-lg text-center font-medium
+        <%= page.overallStatus === 'up' ? 'bg-green-500 text-white' :
+           page.overallStatus === 'down' ? 'bg-red-500 text-white' :
+           page.overallStatus === 'degraded' ? 'bg-yellow-500 text-white' :
+           'bg-gray-400 text-white' %>">
+        <%= page.overallStatus === 'up' ? 'All Systems Operational' :
+           page.overallStatus === 'down' ? 'Major Outage' :
+           page.overallStatus === 'degraded' ? 'Partial Outage' :
+           'Status Unknown' %>
+      </div>
+    </header>
+
+    <!-- Monitor Table -->
+    <div class="<%= page.colorMode === 'dark' ? 'bg-gray-800' : 'bg-white' %> rounded-lg shadow overflow-hidden">
+      <table class="w-full">
+        <thead>
+          <tr class="<%= page.colorMode === 'dark' ? 'bg-gray-750 border-gray-700' : 'bg-gray-50 border-gray-200' %> border-b">
+            <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider <%= page.colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500' %>">Component</th>
+            <th class="text-center px-6 py-3 text-xs font-semibold uppercase tracking-wider <%= page.colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500' %>">Status</th>
+            <th class="text-right px-6 py-3 text-xs font-semibold uppercase tracking-wider <%= page.colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500' %>">Uptime</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y <%= page.colorMode === 'dark' ? 'divide-gray-700' : 'divide-gray-100' %>">
+          <% for (const monitor of page.monitors) { %>
+            <tr>
+              <td class="px-6 py-4">
+                <span class="font-medium"><%= monitor.name %></span>
+              </td>
+              <td class="px-6 py-4 text-center">
+                <span class="inline-flex items-center gap-1.5 text-sm">
+                  <span class="w-2 h-2 rounded-full" style="background-color: <%= helpers.statusColor(monitor.status) %>"></span>
+                  <%= helpers.statusLabel(monitor.status) %>
+                </span>
+              </td>
+              <td class="px-6 py-4 text-right">
+                <span class="text-sm font-medium"><%= helpers.formatUptime(monitor.uptimePercentage) %></span>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3" class="px-6 pb-4 pt-0">
+                <%- include('../../partials/uptime-bar', { monitor, page, helpers }) %>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Incidents -->
+    <%- include('../../partials/incidents', { page, helpers }) %>
+
+    <!-- Footer -->
+    <%- include('../../partials/footer', { page }) %>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+/* Scan server-rendered EJS templates and public assets */
+@source "../server/src/views/**/*.ejs";
+@source "../public/**/*.html";
+
+/* ============================================
+   Design Tokens — shared across dashboard & public pages
+   ============================================ */
+@theme {
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a;
+
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
+
+  --color-surface: #ffffff;
+  --color-surface-alt: #f8fafc;
+  --color-surface-dark: #0f172a;
+  --color-surface-dark-alt: #1e293b;
+
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #64748b;
+  --color-text-dark-primary: #f1f5f9;
+  --color-text-dark-secondary: #94a3b8;
+
+  --color-border: #e2e8f0;
+  --color-border-dark: #334155;
+}
+
+/* ============================================
+   Uptime bar variants
+   ============================================ */
+
+/* Variant: rounded pills */
+.uptime-bar-pill .bar-segment {
+  border-radius: 9999px;
+  min-width: 3px;
+}
+
+/* Variant: sharp blocks */
+.uptime-bar-block .bar-segment {
+  border-radius: 0;
+  min-width: 3px;
+}
+
+/* Variant: thin line */
+.uptime-bar-line .bar-segment {
+  border-radius: 0;
+  min-width: 2px;
+  height: 4px;
+}
+
+/* Variant: rounded blocks */
+.uptime-bar-rounded .bar-segment {
+  border-radius: 3px;
+  min-width: 3px;
+}
+
+/* ============================================
+   Status colors
+   ============================================ */
+.status-up {
+  background-color: var(--color-success);
+}
+
+.status-down {
+  background-color: var(--color-danger);
+}
+
+.status-degraded {
+  background-color: var(--color-warning);
+}
+
+.status-unknown {
+  background-color: #cbd5e1;
+}
+
+/* ============================================
+   Font family utilities for public pages
+   ============================================ */
+.font-inter {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.font-geist {
+  font-family: 'Geist', system-ui, sans-serif;
+}
+
+.font-mono-jetbrains {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+.font-system {
+  font-family: system-ui, -apple-system, sans-serif;
+}

@@ -1,0 +1,23 @@
+<%# Renders active incidents list. Expects: page, helpers %>
+<% if (page.activeIncidents && page.activeIncidents.length > 0) { %>
+  <section class="mt-8">
+    <h2 class="text-lg font-semibold mb-4">Active Incidents</h2>
+    <div class="space-y-3">
+      <% for (const incident of page.activeIncidents) { %>
+        <div class="border border-red-200 dark:border-red-800 rounded-lg p-4 bg-red-50 dark:bg-red-900/20">
+          <div class="flex items-start justify-between">
+            <div>
+              <h3 class="font-medium text-red-800 dark:text-red-300"><%= incident.title %></h3>
+              <p class="text-sm text-red-600 dark:text-red-400 mt-1">
+                <span class="capitalize"><%= incident.status %></span> &middot; <%= incident.monitorName %> &middot; Started <%= helpers.timeAgo(incident.startedAt) %>
+              </p>
+              <% if (incident.cause) { %>
+                <p class="text-sm text-red-500 dark:text-red-400 mt-2"><%= incident.cause %></p>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </section>
+<% } %>

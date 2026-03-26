@@ -1,0 +1,12 @@
+<%# Renders the uptime bar for a single monitor. Expects: monitor (PublicMonitorData), page, helpers %>
+<div class="uptime-bar-<%= page.uptimeBarStyle %> flex items-end gap-[2px]" style="height: 34px;" title="<%= helpers.formatUptime(monitor.uptimePercentage) %> uptime">
+  <% const maxDays = Math.min(monitor.dailyUptimes.length, 90); %>
+  <% const displayDays = monitor.dailyUptimes.slice(-maxDays); %>
+  <% for (const day of displayDays) { %>
+    <div
+      class="bar-segment flex-1 status-<%= day.status %>"
+      style="height: <%= day.status === 'unknown' ? '40' : day.uptimePercentage >= 99 ? '100' : Math.max(20, day.uptimePercentage) %>%;"
+      title="<%= day.date %>: <%= helpers.formatUptime(day.uptimePercentage) %>"
+    ></div>
+  <% } %>
+</div>

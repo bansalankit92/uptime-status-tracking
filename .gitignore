@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+/data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+client/dist/
+public/css/tailwind.css
+.DS_Store
+*.log
+uploads/
