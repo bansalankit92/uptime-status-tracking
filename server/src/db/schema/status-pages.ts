@@ -22,7 +22,7 @@ export const statusPages = sqliteTable('status_pages', {
   footerLayout: text('footer_layout', { enum: ['simple', 'centered', 'columns', 'minimal'] }).notNull().default('simple'),
 
   // Theme / design
-  theme: text('theme', { enum: ['minimal', 'modern', 'classic', 'dark-tech'] }).notNull().default('minimal'),
+  theme: text('theme', { enum: ['minimal', 'modern', 'classic', 'dark-tech', 'clean'] }).notNull().default('minimal'),
   colorMode: text('color_mode', { enum: ['light', 'dark', 'auto'] }).notNull().default('light'),
   fontFamily: text('font_family', { enum: ['inter', 'geist', 'mono-jetbrains', 'system'] }).notNull().default('inter'),
   uptimeBarStyle: text('uptime_bar_style', { enum: ['pill', 'block', 'line', 'rounded'] }).notNull().default('pill'),

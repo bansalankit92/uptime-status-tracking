@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en" <% if (page.colorMode === 'dark') { %>class="dark"<% } %>>
+<head>
+  <%- include('../../partials/head', { page }) %>
+  <style>
+    .clean-uptime-bar { display: flex; align-items: end; gap: 1px; height: 34px; }
+    .clean-uptime-bar .bar-seg {
+      flex: 1;
+      border-radius: 2px;
+      min-width: 2px;
+      transition: opacity 0.15s;
+    }
+    .clean-uptime-bar .bar-seg:hover { opacity: 0.75; }
+    .clean-uptime-bar .bar-seg.status-up { background-color: #3bd671; }
+    .clean-uptime-bar .bar-seg.status-down { background-color: #e74c3c; }
+    .clean-uptime-bar .bar-seg.status-degraded { background-color: #f5a623; }
+    .clean-uptime-bar .bar-seg.status-unknown { background-color: #cfd5db; }
+
+    .incident-update-bar { width: 3px; min-height: 100%; }
+    .status-investigating-color { color: #e74c3c; }
+    .status-identified-color { color: #f5a623; }
+    .status-monitoring-color { color: #3498db; }
+    .status-resolved-color { color: #3bd671; }
+    .bg-investigating { background-color: #e74c3c; }
+    .bg-identified { background-color: #f5a623; }
+    .bg-monitoring { background-color: #3498db; }
+    .bg-resolved { background-color: #3bd671; }
+
+    .subscribe-btn {
+      background: #262b30;
+      color: #fff;
+      border: none;
+      padding: 10px 24px;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .subscribe-btn:hover { background: #3a4149; }
+
+    .status-icon-circle {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+    .status-icon-circle.up { background: #3bd671; }
+    .status-icon-circle.down { background: #e74c3c; }
+    .status-icon-circle.degraded { background: #f5a623; }
+    .status-icon-circle.unknown { background: #cfd5db; }
+  </style>
+</head>
+<body class="font-<%= page.fontFamily %> min-h-screen
+  <%= page.colorMode === 'dark' ? 'bg-gray-950 text-gray-100' : 'bg-white text-gray-900' %>">
+
+  <!-- Top Navbar -->
+  <nav class="border-b <%= page.colorMode === 'dark' ? 'border-gray-800 bg-gray-950' : 'border-gray-200 bg-white' %> px-6 py-3">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <% if (page.logoUrl) { %>
+          <img src="<%= page.logoUrl %>" alt="Logo" class="h-6">
+        <% } %>
+        <span class="font-semibold text-sm tracking-wide uppercase"><%= page.headerText || page.title %></span>
+      </div>
+      <% if (page.footerLinks && page.footerLinks.length) { %>
+        <a href="<%= page.footerLinks[0].url %>" class="text-xs font-medium tracking-wide uppercase <%= page.colorMode === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-800' %> transition-colors"><%= page.footerLinks[0].label %></a>
+      <% } %>
+    </div>
+  </nav>
+
+  <div class="max-w-4xl mx-auto px-6">
+
+    <!-- Last Updated Bar -->
+    <div class="flex items-center justify-between py-3 text-xs font-mono <%= page.colorMode === 'dark' ? 'text-gray-500' : 'text-gray-400' %> tracking-wide uppercase">
+      <span>Last updated: <%= new Date().toISOString().replace('T', ' ').substring(0, 19) %></span>
+      <span>Next refresh in 05:00</span>
+    </div>
+
+    <!-- Hero Status Section -->
+    <div class="<%= page.colorMode === 'dark' ? 'bg-gray-900 border-gray-800' : 'bg-gray-50 border-gray-200' %> border rounded-lg py-10 px-6 text-center mb-8">
+      <div class="status-icon-circle <%= page.overallStatus %>">
+        <% if (page.overallStatus === 'up') { %>
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <% } else if (page.overallStatus === 'down') { %>
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        <% } else if (page.overallStatus === 'degraded') { %>
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        <% } else { %>
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <% } %>
+      </div>
+      <h2 class="text-2xl font-semibold mb-2">
+        <%= page.overallStatus === 'up' ? 'All systems are fully operational.' :
+           page.overallStatus === 'down' ? 'Major system outage detected.' :
+           page.overallStatus === 'degraded' ? 'Some systems are experiencing issues.' :
+           'System status is being determined.' %>
+      </h2>
+      <p class="text-sm <%= page.colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500' %> mb-6">
+        <%= page.overallStatus === 'up' ? "We aren't aware of any issues affecting our systems." :
+           page.overallStatus === 'down' ? 'We are currently experiencing a service disruption.' :
+           page.overallStatus === 'degraded' ? 'We are aware of issues and working on a resolution.' :
+           'We are currently checking all systems.' %>
+      </p>
+      <button class="subscribe-btn" onclick="alert('Subscribe feature coming soon')">Subscribe to Updates</button>
+    </div>
+
+    <!-- Monitors -->
+    <div class="space-y-1">
+      <% for (const monitor of page.monitors) { %>
+        <div class="<%= page.colorMode === 'dark' ? 'border-gray-800' : 'border-gray-200' %> border-b py-5">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <div class="w-4 h-4 rounded-full flex items-center justify-center" style="background-color: <%= helpers.statusColor(monitor.status) %>">
+                <% if (monitor.status === 'up') { %>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <% } %>
+              </div>
+              <span class="font-medium text-sm"><%= monitor.name %></span>
+            </div>
+            <span class="text-sm <%= page.colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500' %>"><%= helpers.formatUptime(monitor.uptimePercentage) %> Uptime</span>
+          </div>
+          <div class="clean-uptime-bar" title="<%= helpers.formatUptime(monitor.uptimePercentage) %> uptime">
+            <% const maxDays = Math.min(monitor.dailyUptimes.length, 90); %>
+            <% const displayDays = monitor.dailyUptimes.slice(-maxDays); %>
+            <% for (const day of displayDays) { %>
+              <div
+                class="bar-seg status-<%= day.status %>"
+                style="height: <%= day.status === 'unknown' ? '40' : day.uptimePercentage >= 99 ? '100' : Math.max(20, day.uptimePercentage) %>%;"
+                title="<%= day.date %>: <%= helpers.formatUptime(day.uptimePercentage) %>"
+              ></div>
+            <% } %>
+          </div>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Spacer -->
+    <div class="h-12"></div>
+
+    <!-- Incidents Section -->
+    <% if (page.incidentHistory && page.incidentHistory.length > 0) { %>
+      <section>
+        <div class="flex items-center justify-between mb-6 border-b <%= page.colorMode === 'dark' ? 'border-gray-800' : 'border-gray-200' %> pb-3">
+          <h2 class="text-lg font-bold">Incidents</h2>
+          <button class="text-xs font-medium tracking-wide uppercase border px-3 py-1.5 rounded
+            <%= page.colorMode === 'dark' ? 'border-gray-700 text-gray-400 hover:text-gray-200' : 'border-gray-300 text-gray-500 hover:text-gray-800' %> transition-colors"
+            onclick="document.querySelectorAll('.incident-day').forEach(el => el.style.display = 'block')">
+            View Incident History
+          </button>
+        </div>
+
+        <div class="space-y-0">
+          <% for (const day of page.incidentHistory) { %>
+            <div class="incident-day border-b <%= page.colorMode === 'dark' ? 'border-gray-800' : 'border-gray-200' %> py-5">
+              <% if (day.incidents.length === 0) { %>
+                <!-- No incidents day -->
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-mono font-medium tracking-wider uppercase <%= page.colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500' %>"><%= helpers.formatDate(day.date) %></span>
+                  <span class="text-xs tracking-wider uppercase <%= page.colorMode === 'dark' ? 'text-gray-600' : 'text-gray-400' %>">No incidents reported</span>
+                </div>
+              <% } else { %>
+                <!-- Day with incidents -->
+                <div class="mb-4">
+                  <span class="text-xs font-mono font-medium tracking-wider uppercase <%= page.colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500' %>"><%= helpers.formatDate(day.date) %></span>
+                </div>
+                <% for (const incident of day.incidents) { %>
+                  <div class="mb-4">
+                    <h4 class="font-medium text-sm mb-3"><%= incident.title %></h4>
+                    <% if (incident.updates && incident.updates.length > 0) { %>
+                      <div class="space-y-0">
+                        <% for (const update of incident.updates) { %>
+                          <div class="flex gap-3 pl-2">
+                            <div class="flex flex-col items-center">
+                              <div class="w-2 h-2 rounded-full mt-1.5 bg-<%= update.status %>"></div>
+                              <% if (incident.updates.indexOf(update) < incident.updates.length - 1) { %>
+                                <div class="w-0.5 flex-1 mt-1 <%= page.colorMode === 'dark' ? 'bg-gray-800' : 'bg-gray-200' %>"></div>
+                              <% } %>
+                            </div>
+                            <div class="pb-4 flex-1">
+                              <div class="text-xs font-bold uppercase tracking-wider status-<%= update.status %>-color mb-1"><%= update.status %></div>
+                              <% if (update.message) { %>
+                                <p class="text-sm <%= page.colorMode === 'dark' ? 'text-gray-300' : 'text-gray-600' %> mb-1"><%= update.message %></p>
+                              <% } %>
+                              <span class="text-xs <%= page.colorMode === 'dark' ? 'text-gray-600' : 'text-gray-400' %>"><%= helpers.formatDateTime(update.createdAt) %></span>
+                            </div>
+                          </div>
+                        <% } %>
+                      </div>
+                    <% } else { %>
+                      <p class="text-sm <%= page.colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500' %> pl-2">
+                        <span class="capitalize"><%= incident.status %></span> &middot; <%= incident.monitorName %> &middot; Started <%= helpers.timeAgo(incident.startedAt) %>
+                      </p>
+                    <% } %>
+                  </div>
+                <% } %>
+              <% } %>
+            </div>
+          <% } %>
+        </div>
+      </section>
+    <% } %>
+
+    <!-- Footer -->
+    <footer class="mt-12 py-6 border-t <%= page.colorMode === 'dark' ? 'border-gray-800' : 'border-gray-200' %> text-center">
+      <% if (page.footerText) { %>
+        <p class="text-xs <%= page.colorMode === 'dark' ? 'text-gray-600' : 'text-gray-400' %>"><%= page.footerText %></p>
+      <% } %>
+    </footer>
+  </div>
+
+</body>
+</html>

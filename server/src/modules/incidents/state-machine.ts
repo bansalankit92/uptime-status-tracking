@@ -1,5 +1,5 @@
 import { db } from '../../db/connection.js';
-import { incidents, monitors } from '../../db/schema/index.js';
+import { incidents, incidentUpdates, monitors } from '../../db/schema/index.js';
 import { eq, and, ne } from 'drizzle-orm';
 import type { Monitor } from '../../db/schema/monitors.js';
 import type { Incident } from '../../db/schema/incidents.js';
@@ -43,6 +43,12 @@ export async function handleStateTransition(
       startedAt: now,
     }).returning().get();
 
+    db.insert(incidentUpdates).values({
+      incidentId: incident.id,
+      status: 'investigating',
+      message: result.error || `We are investigating an issue with ${monitor.name}.`,
+    }).run();
+
     console.log(`[incident] Created incident #${incident.id} for ${monitor.name}`);
 
     await dispatchNotifications({
@@ -70,6 +76,12 @@ export async function handleStateTransition(
         resolvedAt: now,
         updatedAt: now,
       }).where(eq(incidents.id, incident.id)).run();
+
+      db.insert(incidentUpdates).values({
+        incidentId: incident.id,
+        status: 'resolved',
+        message: `${monitor.name} is back online. This has been resolved.`,
+      }).run();
 
       console.log(`[incident] Resolved incident #${incident.id} for ${monitor.name}`);
     }

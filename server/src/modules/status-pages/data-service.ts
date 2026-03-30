@@ -1,10 +1,10 @@
 import { db } from '../../db/connection.js';
 import {
   statusPages, statusPageMonitors, monitors,
-  incidents, uptimeDailyRollups
+  incidents, incidentUpdates, uptimeDailyRollups
 } from '../../db/schema/index.js';
 import { eq, and, ne, asc, desc, gte } from 'drizzle-orm';
-import type { PublicStatusPageData, PublicMonitorData, PublicIncidentData, DailyUptimeData, MonitorStatus, FooterLink } from '../../../../shared/types.js';
+import type { PublicStatusPageData, PublicMonitorData, PublicIncidentData, PublicIncidentUpdateData, DailyUptimeData, IncidentHistoryDay, MonitorStatus, FooterLink } from '../../../../shared/types.js';
 
 export function getPublicStatusPageData(slug: string): PublicStatusPageData | null {
   // Get status page config
@@ -114,6 +114,78 @@ export function getPublicStatusPageData(slug: string): PublicStatusPageData | nu
     overallStatus = 'unknown';
   }
 
+  // Build incident history (last 10 days, all incidents including resolved)
+  const historyDays = 10;
+  const historyStart = new Date();
+  historyStart.setDate(historyStart.getDate() - historyDays + 1);
+  historyStart.setHours(0, 0, 0, 0);
+
+  const allRecentIncidents = db.select({
+    incident: incidents,
+    monitorName: monitors.name,
+  })
+    .from(incidents)
+    .innerJoin(monitors, eq(incidents.monitorId, monitors.id))
+    .where(and(
+      eq(incidents.projectId, page.projectId),
+      gte(incidents.startedAt, historyStart.toISOString()),
+    ))
+    .orderBy(desc(incidents.startedAt))
+    .all();
+
+  // Fetch updates for these incidents
+  const incidentIds = allRecentIncidents.map((r) => r.incident.id);
+  const allUpdates = incidentIds.length > 0
+    ? db.select().from(incidentUpdates)
+        .where(
+          // SQLite doesn't have array IN with drizzle easily, so fetch all and filter
+          gte(incidentUpdates.incidentId, 0)
+        )
+        .orderBy(desc(incidentUpdates.createdAt))
+        .all()
+        .filter((u) => incidentIds.includes(u.incidentId))
+    : [];
+
+  const updatesByIncident = new Map<number, PublicIncidentUpdateData[]>();
+  for (const u of allUpdates) {
+    const list = updatesByIncident.get(u.incidentId) || [];
+    list.push({
+      status: u.status as PublicIncidentUpdateData['status'],
+      message: u.message,
+      createdAt: u.createdAt,
+    });
+    updatesByIncident.set(u.incidentId, list);
+  }
+
+  // Group incidents by date
+  const incidentsByDate = new Map<string, PublicIncidentData[]>();
+  for (const row of allRecentIncidents) {
+    const dateStr = row.incident.startedAt.split('T')[0];
+    const list = incidentsByDate.get(dateStr) || [];
+    list.push({
+      title: row.incident.title,
+      status: row.incident.status as PublicIncidentData['status'],
+      cause: row.incident.cause,
+      startedAt: row.incident.startedAt,
+      resolvedAt: row.incident.resolvedAt,
+      monitorName: row.monitorName,
+      updates: updatesByIncident.get(row.incident.id) || [],
+    });
+    incidentsByDate.set(dateStr, list);
+  }
+
+  // Build full history (include days with no incidents)
+  const incidentHistory: IncidentHistoryDay[] = [];
+  for (let i = 0; i < historyDays; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    incidentHistory.push({
+      date: dateStr,
+      incidents: incidentsByDate.get(dateStr) || [],
+    });
+  }
+
   // Parse footer links
   let footerLinks: FooterLink[] = [];
   if (page.footerLinks) {
@@ -137,5 +209,6 @@ export function getPublicStatusPageData(slug: string): PublicStatusPageData | nu
     overallStatus,
     monitors: monitorDataList,
     activeIncidents: incidentData,
+    incidentHistory,
   };
 }

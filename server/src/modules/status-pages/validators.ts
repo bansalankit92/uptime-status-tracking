@@ -20,7 +20,7 @@ export const updateStatusPageSchema = z.object({
   footerLayout: z.enum(['simple', 'centered', 'columns', 'minimal']).optional(),
 
   // Theme
-  theme: z.enum(['minimal', 'modern', 'classic', 'dark-tech']).optional(),
+  theme: z.enum(['minimal', 'modern', 'classic', 'dark-tech', 'clean']).optional(),
   colorMode: z.enum(['light', 'dark', 'auto']).optional(),
   fontFamily: z.enum(['inter', 'geist', 'mono-jetbrains', 'system']).optional(),
   uptimeBarStyle: z.enum(['pill', 'block', 'line', 'rounded']).optional(),

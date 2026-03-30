@@ -18,6 +18,7 @@ router.get('/status/:slug', (req: Request, res: Response) => {
     'modern': 'themes/modern/index',
     'classic': 'themes/classic/index',
     'dark-tech': 'themes/dark-tech/index',
+    'clean': 'themes/clean/index',
   };
 
   const template = templateMap[data.theme] || 'themes/minimal/index';
@@ -29,6 +30,8 @@ router.get('/status/:slug', (req: Request, res: Response) => {
       statusLabel,
       formatUptime,
       timeAgo,
+      formatDate,
+      formatDateTime,
     },
   });
 });
@@ -68,6 +71,22 @@ function statusLabel(status: string): string {
 
 function formatUptime(pct: number): string {
   return `${pct.toFixed(2)}%`;
+}
+
+function formatDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+  return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+}
+
+function formatDateTime(dateStr: string): string {
+  const date = new Date(dateStr);
+  const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+  const hours = date.getUTCHours();
+  const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const h = hours % 12 || 12;
+  return `${months[date.getUTCMonth()]} ${date.getUTCDate()}, ${h}:${minutes} ${ampm} UTC`;
 }
 
 function timeAgo(dateStr: string): string {

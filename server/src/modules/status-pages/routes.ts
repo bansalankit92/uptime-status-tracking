@@ -114,6 +114,7 @@ router.get('/themes', (_req: Request, res: Response) => {
       { id: 'modern', name: 'Modern SaaS', description: 'Bold, contemporary SaaS style' },
       { id: 'classic', name: 'Classic', description: 'Traditional status page layout' },
       { id: 'dark-tech', name: 'Dark Technical', description: 'Dark theme with technical aesthetics' },
+      { id: 'clean', name: 'Clean', description: 'Statuspage-style with incident history' },
     ],
   });
 });

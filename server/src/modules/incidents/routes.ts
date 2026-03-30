@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { db } from '../../db/connection.js';
-import { incidents, monitors } from '../../db/schema/index.js';
+import { incidents, incidentUpdates, monitors } from '../../db/schema/index.js';
 import { eq, desc, and } from 'drizzle-orm';
 import { authMiddleware } from '../../middleware/auth.js';
 import { AppError } from '../../middleware/error-handler.js';
@@ -11,6 +11,7 @@ import { validate } from '../../middleware/validate.js';
 const updateIncidentSchema = z.object({
   status: z.enum(['investigating', 'identified', 'monitoring', 'resolved']),
   cause: z.string().optional().nullable(),
+  message: z.string().optional().nullable(),
 });
 
 const router = Router();
@@ -80,6 +81,12 @@ router.patch('/:id', validate(updateIncidentSchema), (req: Request, res: Respons
   if (req.body.status === 'identified' && !existing.acknowledgedAt) updates.acknowledgedAt = now;
 
   db.update(incidents).set(updates).where(eq(incidents.id, id)).run();
+
+  db.insert(incidentUpdates).values({
+    incidentId: id,
+    status: req.body.status,
+    message: req.body.message || req.body.cause || null,
+  }).run();
 
   const updated = db.select().from(incidents).where(eq(incidents.id, id)).get();
   res.json({ success: true, data: updated });

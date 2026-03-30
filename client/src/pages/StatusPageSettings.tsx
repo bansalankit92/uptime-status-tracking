@@ -44,6 +44,7 @@ const themes = [
   { id: 'modern', name: 'Modern SaaS', desc: 'Bold, contemporary' },
   { id: 'classic', name: 'Classic', desc: 'Traditional table layout' },
   { id: 'dark-tech', name: 'Dark Technical', desc: 'Terminal-inspired dark theme' },
+  { id: 'clean', name: 'Clean', desc: 'Statuspage-style with incidents' },
 ];
 
 export function StatusPageSettingsPage() {

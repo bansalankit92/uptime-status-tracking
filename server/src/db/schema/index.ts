@@ -4,6 +4,7 @@ export * from './monitors.js';
 export * from './tags.js';
 export * from './monitor-results.js';
 export * from './incidents.js';
+export * from './incident-updates.js';
 export * from './notifications.js';
 export * from './status-pages.js';
 export * from './uptime-rollups.js';

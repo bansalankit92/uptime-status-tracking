@@ -16,7 +16,7 @@ export type NotificationEventType = 'down' | 'recovery' | 'degraded';
 export type NotificationDeliveryStatus = 'sent' | 'failed' | 'skipped';
 
 // Status page theming
-export type StatusPageTheme = 'minimal' | 'modern' | 'classic' | 'dark-tech';
+export type StatusPageTheme = 'minimal' | 'modern' | 'classic' | 'dark-tech' | 'clean';
 export type ColorMode = 'light' | 'dark' | 'auto';
 export type FontFamily = 'inter' | 'geist' | 'mono-jetbrains' | 'system';
 export type UptimeBarStyle = 'pill' | 'block' | 'line' | 'rounded';
@@ -101,6 +101,7 @@ export interface PublicStatusPageData {
   overallStatus: MonitorStatus;
   monitors: PublicMonitorData[];
   activeIncidents: PublicIncidentData[];
+  incidentHistory?: IncidentHistoryDay[];
 }
 
 export interface PublicMonitorData {
@@ -124,6 +125,18 @@ export interface PublicIncidentData {
   startedAt: string;
   resolvedAt: string | null;
   monitorName: string;
+  updates?: PublicIncidentUpdateData[];
+}
+
+export interface PublicIncidentUpdateData {
+  status: IncidentStatus;
+  message: string | null;
+  createdAt: string;
+}
+
+export interface IncidentHistoryDay {
+  date: string;
+  incidents: PublicIncidentData[];
 }
 
 // ============================================
